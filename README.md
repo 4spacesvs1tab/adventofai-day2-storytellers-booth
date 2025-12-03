@@ -62,3 +62,10 @@ This repository contains both our comprehensive analytical preparation and the c
 ## Implementation Note
 
 This project was vibecoded with Goose using qwen3-coder as part of https://adventofai.dev/
+
+## Screenshots
+
+![Storyteller's Booth Interface](4s1t_d2_storytellersbooth_01.png)
+![Story Selection](4s1t_d2_storytellersbooth_02.png)
+![Character Progression](4s1t_d2_storytellersbooth_03.png)
+![Inventory System](4s1t_d2_storytellersbooth_04.png)
