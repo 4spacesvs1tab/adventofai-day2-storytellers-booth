@@ -59,13 +59,6 @@ This repository contains both our comprehensive analytical preparation and the c
 ---
 *Implementation completed: December 3, 2025*
 
-## Screenshots
-
-![Screenshot 1](4s1t_d2_storytellersbooth_01.png)
-![Screenshot 2](4s1t_d2_storytellersbooth_02.png)
-![Screenshot 3](4s1t_d2_storytellersbooth_03.png)
-![Screenshot 4](4s1t_d2_storytellersbooth_04.png)
-
 ## Implementation Note
 
 This project was vibecoded with Goose using qwen3-coder as part of https://adventofai.dev/

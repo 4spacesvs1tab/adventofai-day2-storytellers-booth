@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Storyteller's Booth - Nuclear Winter Edition</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1a1a2e;
+            font-family: 'Courier New', monospace;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* CRT monitor effect */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 100;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+        
+        /* Scanlines */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 99;
+        }
+        
+        /* Snow effect */
+        .snow-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .snow {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: fall linear infinite;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+        
+        .booth-container {
+            position: relative;
+            width: 90%;
+            max-width: 900px;
+            background: #0f0f1a;
+            border: 3px solid #4a4a6a;
+            padding: 25px;
+            box-shadow: 0 0 20px rgba(70, 130, 180, 0.5);
+            z-index: 10;
+            overflow: hidden;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #88ccff;
+            text-shadow: 0 0 10px rgba(136, 204, 255, 0.7);
+            letter-spacing: 3px;
+            font-weight: normal;
+        }
+        
+        .story-content {
+            min-height: 300px;
+            background: #151525;
+            border: 1px solid #3a3a5a;
+            padding: 20px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-size: 1.1rem;
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .story-content p {
+            margin: 0 0 15px 0;
+            text-align: justify;
+        }
+        
+        .choices-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .choice-btn {
+            background: #2a2a4a;
+            border: 1px solid #5a5a7a;
+            padding: 12px 20px;
+            color: #aaccff;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .choice-btn:hover {
+            background: #3a3a6a;
+            border-color: #7a7a9a;
+            box-shadow: 0 0 10px rgba(100, 150, 255, 0.5);
+        }
+        
+        .choice-btn::before {
+            content: "> ";
+            color: #ffaa66;
+        }
+        
+        .nav-btn {
+            background: #1a1a3a;
+            display: block;
+            margin: 10px auto 0;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            width: fit-content;
+        }
+        
+        .back-btn {
+            background: #3a3a1a;
+        }
+        
+        .home-btn {
+            background: #3a1a1a;
+            margin-top: 10px;
+        }
+        
+        .story-title {
+            color: #ffaa66;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            text-align: center;
+            border-bottom: 1px solid #3a3a5a;
+            padding-bottom: 10px;
+        }
+        
+        .ending-indicator {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #66ffaa;
+            margin: 15px 0;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(102, 255, 170, 0.5);
+        }
+        
+        /* Stats panel */
+        .stats-panel {
+            background: #1a1a3a;
+            border: 1px solid #3a3a5a;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            position: relative;
+        }
+        
+        .stat-value {
+            font-size: 1.4rem;
+            color: #ffaa66;
+            font-weight: bold;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #88ccff;
+            cursor: help;
+            position: relative;
+            border-bottom: 1px dotted #88ccff;
+        }
+        
+        /* Tooltip styling */
+        .tooltip {
+            visibility: hidden;
+            width: 200px;
+            background-color: #0f0f1a;
+            color: #e0e0e0;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 100;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            border: 1px solid #4a4a6a;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+        
+        .tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #0f0f1a transparent transparent transparent;
+        }
+        
+        .stat-label:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Inventory panel */
+        .inventory-panel {
+            background: #1a1a3a;
+            border: 1px solid #3a3a5a;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .inventory-title {
+            color: #ffaa66;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .inventory-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .inventory-item {
+            background: #2a2a4a;
+            border: 1px solid #5a5a7a;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .inventory-item.empty {
+            color: #666;
+            font-style: italic;
+        }
+        
+        /* Audio controls */
+        .audio-controls {
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        .audio-btn {
+            background: #2a2a4a;
+            border: 1px solid #5a5a7a;
+            color: #aaccff;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .audio-btn:hover {
+            background: #3a3a6a;
+        }
+        
+        .audio-btn.playing {
+            background: #1a3a1a;
+            border-color: #5a7a5a;
+            color: #66ffaa;
+        }
+        
+        /* ASCII art container */
+        .ascii-art {
+            font-family: monospace;
+            white-space: pre;
+            text-align: center;
+            margin: 15px 0;
+            color: #88ccff;
+            font-size: 0.8rem;
+            line-height: 1.2;
+            overflow-x: auto;
+        }
+        
+        /* Music visualization */
+        .music-visualizer {
+            height: 30px;
+            margin: 10px 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 2px;
+        }
+        
+        .bar {
+            width: 4px;
+            background: #66ffaa;
+            animation: bounce 0.5s infinite alternate;
+        }
+        
+        @keyframes bounce {
+            from { height: 5px; }
+            to { height: 25px; }
+        }
+        
+        @media (max-width: 600px) {
+            .booth-container {
+                width: 95%;
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .story-content {
+                padding: 15px;
+                font-size: 0.9rem;
+            }
+            
+            .stats-panel {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Snow container -->
+    <div class="snow-container" id="snowContainer"></div>
+    
+    <div class="booth-container">
+        <h1>THE STORYTELLER'S BOOTH</h1>
+        
+        <!-- Audio controls -->
+        <div class="audio-controls">
+            <button id="audioToggle" class="audio-btn">🎵 PLAY HAPPY SONG</button>
+            <div class="music-visualizer" id="visualizer" style="display: none;"></div>
+        </div>
+        
+        <!-- Character stats -->
+        <div class="stats-panel" id="statsPanel">
+            <div class="stat-item">
+                <div class="stat-value" id="luckStat">7</div>
+                <div class="stat-label">LUCK
+                    <div class="tooltip">Your character's fortune and ability to have favorable outcomes in random situations</div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="charmStat">5</div>
+                <div class="stat-label">CHARM
+                    <div class="tooltip">Your character's social skills and ability to influence others positively</div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="witStat">8</div>
+                <div class="stat-label">WIT
+                    <div class="tooltip">Your character's intelligence, problem-solving ability, and cleverness</div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="survivalStat">6</div>
+                <div class="stat-label">SURVIVAL
+                    <div class="tooltip">Your character's practical skills for staying alive in the post-apocalyptic world</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Inventory -->
+        <div class="inventory-panel">
+            <div class="inventory-title">INVENTORY</div>
+            <div class="inventory-items" id="inventoryItems">
+                <div class="inventory-item">🧄 Garlic Necklace</div>
+                <div class="inventory-item">🔦 Flashlight</div>
+                <div class="inventory-item">📋 Clipboard</div>
+                <div class="inventory-item empty">Empty Slot</div>
+            </div>
+        </div>
+        
+        <div class="story-content" id="storyContent">
+            <!-- Story content will be inserted here by JavaScript -->
+        </div>
+        <div class="choices-container" id="choicesContainer">
+            <!-- Choice buttons will be inserted here by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Create snow effect
+        function createSnow() {
+            const container = document.getElementById('snowContainer');
+            const snowflakes = 100;
+            
+            for (let i = 0; i < snowflakes; i++) {
+              const snow = document.createElement('div');
+              snow.className = 'snow';
+              
+              // Random properties
+              const size = Math.random() * 3 + 1;
+              const posX = Math.random() * 100;
+              const delay = Math.random() * 5;
+              const duration = Math.random() * 10 + 5;
+              
+              snow.style.width = `${size}px`;
+              snow.style.height = `${size}px`;
+              snow.style.left = `${posX}%`;
+              snow.style.opacity = Math.random() * 0.7 + 0.3;
+              snow.style.animationDelay = `${delay}s`;
+              snow.style.animationDuration = `${duration}s`;
+              
+              container.appendChild(snow);
+            }
+        }
+        
+        // Web Audio API setup for generated music
+        let audioContext = null;
+        let isPlaying = false;
+        let oscillator = null;
+        let gainNode = null;
+        let scheduler = null;
+        
+        // Simple melody based on "Always Look on the Bright Side of Life"
+        // Simplified version using basic notes
+        const melody = [
+          {note: 'C4', duration: 0.5}, {note: 'D4', duration: 0.5}, {note: 'E4', duration: 0.5}, {note: 'F4', duration: 0.5},
+          {note: 'G4', duration: 1.0}, {note: 'E4', duration: 0.5}, {note: 'C4', duration: 0.5},
+          {note: 'G4', duration: 0.5}, {note: 'A4', duration: 0.5}, {note: 'G4', duration: 0.5}, {note: 'F4', duration: 0.5},
+          {note: 'E4', duration: 1.0}, {note: 'D4', duration: 0.5}, {note: 'C4', duration: 0.5},
+          {note: 'C4', duration: 0.5}, {note: 'G4', duration: 0.5}, {note: 'C5', duration: 1.0},
+          {note: 'G4', duration: 0.5}, {note: 'F4', duration: 0.5}, {note: 'E4', duration: 0.5}, {note: 'D4', duration: 0.5},
+          {note: 'C4', duration: 2.0}
+        ];
+        
+        // Note frequencies (simplified)
+        const noteFrequencies = {
+          'C4': 261.63,
+          'D4': 293.66,
+          'E4': 329.63,
+          'F4': 349.23,
+          'G4': 392.00,
+          'A4': 440.00,
+          'C5': 523.25
+        };
+        
+        // Create music visualizer bars
+        function createVisualizer() {
+            const visualizer = document.getElementById('visualizer');
+            visualizer.innerHTML = '';
+            
+            for (let i = 0; i < 16; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.animationDelay = `${i * 0.1}s`;
+                bar.style.height = `${Math.random() * 20 + 5}px`;
+                visualizer.appendChild(bar);
+            }
+        }
+        
+        // Play a single note
+        function playNote(frequency, duration) {
+            if (!audioContext) return;
+            
+            // Create oscillator and gain node
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            // Configure oscillator
+            osc.type = 'square';
+            osc.frequency.value = frequency;
+            
+            // Configure gain envelope
+            gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            // Connect and play
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            osc.start();
+            osc.stop(audioContext.currentTime + duration);
+        }
+        
+        // Play the melody
+        function playMelody() {
+            if (!audioContext) {
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.error('Web Audio API is not supported in this browser');
+                    return;
+                }
+            }
+            
+            let time = audioContext.currentTime;
+            
+            // Play each note in sequence
+            melody.forEach((note, index) => {
+                const frequency = noteFrequencies[note.note] || 0;
+                if (frequency > 0) {
+                    setTimeout(() => {
+                        playNote(frequency, note.duration);
+                    }, (time - audioContext.currentTime) * 1000);
+                }
+                time += note.duration;
+            });
+            
+            // Loop the melody
+            setTimeout(playMelody, time * 1000 - audioContext.currentTime * 1000);
+        }
+        
+        // Audio handling with actual music generation
+        function toggleAudio() {
+            const button = document.getElementById('audioToggle');
+            const visualizer = document.getElementById('visualizer');
+            
+            if (isPlaying) {
+                // Stop audio
+                if (audioContext) {
+                    audioContext.close();
+                    audioContext = null;
+                }
+                button.textContent = '🎵 PLAY HAPPY SONG';
+                button.classList.remove('playing');
+                visualizer.style.display = 'none';
+                isPlaying = false;
+            } else {
+                // Start audio
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    playMelody();
+                    button.textContent = '⏸️ PAUSE HAPPY SONG';
+                    button.classList.add('playing');
+                    visualizer.style.display = 'flex';
+                    createVisualizer();
+                    isPlaying = true;
+                } catch (e) {
+                    console.error('Error starting audio:', e);
+                    // Fallback message
+                    button.textContent = '🎵 PLAY HAPPY SONG';
+                    button.classList.remove('playing');
+                    visualizer.style.display = 'none';
+                    isPlaying = false;
+                    
+                    // Show error message
+                    const content = document.getElementById('storyContent');
+                    const originalContent = content.innerHTML;
+                    content.innerHTML = `
+                        <div style="text-align: center; color: #ff6666; font-weight: bold;">
+                            🎵 Audio not supported in this browser 🎵
+                            <br><small>Please try Chrome, Firefox, or Edge for the full experience</small>
+                        </div>
+                        ${originalContent}
+                    `;
+                    
+                    // Reset after 3 seconds
+                    setTimeout(() => {
+                        content.innerHTML = originalContent;
+                    }, 3000);
+                }
+            }
+        }
+        
+        // Character stats and inventory
+        let characterStats = {
+            luck: 7,
+            charm: 5,
+            wit: 8,
+            survival: 6
+        };
+        
+        let inventory = [
+            "🧄 Garlic Necklace",
+            "🔦 Flashlight",
+            "📋 Clipboard",
+            null // Empty slot
+        ];
+        
+        // Navigation history
+        let navigationHistory = [];
+        let currentState = 'intro';
+        
+        // Update stats display
+        function updateStats() {
+            document.getElementById('luckStat').textContent = characterStats.luck;
+            document.getElementById('charmStat').textContent = characterStats.charm;
+            document.getElementById('witStat').textContent = characterStats.wit;
+            document.getElementById('survivalStat').textContent = characterStats.survival;
+            
+            // Update inventory display
+            const inventoryContainer = document.getElementById('inventoryItems');
+            inventoryContainer.innerHTML = '';
+            
+            inventory.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'inventory-item';
+                if (item) {
+                    itemElement.textContent = item;
+                } else {
+                    itemElement.textContent = 'Empty Slot';
+                    itemElement.className += ' empty';
+                }
+                inventoryContainer.appendChild(itemElement);
+            });
+        }
+        
+        // Story data with all branches properly connected
+        const storyData = {
+            intro: {
+                title: "WELCOME TO THE NEW WORLD ☢️❄️",
+                ascii: `          
+           .--.
+          |o_o |
+          |:_/ |
+         //   \\ \\
+        (|     | )
+       /'\\_   _/\`\\
+       \\___)=(___/
+       
+    WELCOME, SURVIVOR!
+                `,
+                content: "Well, hello there, survivor! Isn't this just absolutely *marvelous*? The world as we knew it has ended in a series of spectacular nuclear firecrackers, and now we have this absolutely beautiful winter wonderland to enjoy. No more rushing to work, no more traffic jams, no more annoying colleagues asking to borrow your stapler!\n\nYou've stumbled upon the Storyteller's Booth - the only entertainment establishment still operating since the Great Detonation of 2025. I'm your humble narrator, here to regale you with tales of our brave new world.\n\nSo, what'll it be? Shall we explore the irradiated ruins of civilization, or perhaps venture into the frozen wasteland where mutated creatures roam? The choice is yours!",
+                choices: [
+                    { text: "Explore the irradiated ruins of Old Boston 🏙️", next: "ruins" },
+                    { text: "Venture into the frozen wasteland ❄️", next: "wasteland" },
+                    { text: "Visit the underground vault settlements 🚪", next: "vault" },
+                    { text: "Investigate the mysterious signal tower 📡", next: "tower" }
+                ]
+            },
+            ruins: {
+                title: "RUINS OF OLD BOSTON 🏙️",
+                ascii: `
+        /\\  /\\ 
+       (  ..  )
+        )    ( 
+       (  vV  )
+      ^^  **  ^^
+     /  ~~~~~~  \\
+    (   O  O     )
+     \\   ~~     /
+      \\  ||    /
+       \\______/
+                `,
+                content: "Ah, Old Boston! Once a bustling metropolis, now a picturesque collection of crumbling skyscrapers poking out of the snow like the ribs of a long-dead beast. Quite charming, really.\n\nYou're wandering through what used to be Copley Square when you spot something rather interesting - a pristine 1950s convertible, somehow untouched by the decades of radiation and weather. Sitting in the driver's seat is a man in a perfectly pressed business suit, apparently still waiting for his morning commute to begin.\n\nNearby, you hear the distinctive chittering of Rad-Roaches™, the most successful species to emerge from the post-nuclear ecosystem. They seem to be organizing some sort of... parliament?",
+                choices: [
+                    { text: "Approach the businessman in the convertible 👔", next: "businessman" },
+                    { text: "Investigate the Rad-Roach parliament 🐛", next: "roaches" },
+                    { text: "Search the nearby department store ruins 🛍️", next: "store" },
+                    { text: "Climb the partially collapsed skyscraper 🧗", next: "skyscraper" }
+                ]
+            },
+            wasteland: {
+                title: "THE FROZEN WASTELAND ❄️",
+                ascii: `
+          *     *
+         ***   ***
+        ***** *****
+       *************
+      ***************
+     *****************
+    *******************
+         ||   ||
+         ||   ||
+         ((   ))
+          ^^ ^^
+                `,
+                content: "Brave soul! You bundle up in your fashionable radiation suit (very on-trend this season) and head out into the frozen expanse. The aurora borealis dances overhead in brilliant greens and purples - a side effect of atmospheric radiation that Mother Nature seems to have turned into her own art exhibit.\n\nAfter walking for what feels like hours (but is probably just 20 minutes - time moves differently in the wasteland), you come across a peculiar sight: a group of Ghouls having what appears to be a picnic on a park bench. They've brought checkered blankets, wicker baskets, and even a portable radio playing pre-war jazz.\n\nNearby, a pack of friendly-looking Mutant Hounds plays fetch with what looks like a rusty hubcap.",
+                choices: [
+                    { text: "Join the Ghoul picnic 🧺", next: "picnic" },
+                    { text: "Play fetch with the Mutant Hounds 🐕", next: "hounds" },
+                    { text: "Investigate a strange glowing crater nearby ☄️", next: "crater" },
+                    { text: "Follow a trail of discarded pre-war magazines 📚", next: "trail" }
+                ]
+            },
+            vault: {
+                title: "THE UNDERGROUND VAULTS 🚪",
+                ascii: `
+        _______
+       |       |
+       |  🚪   |
+       |       |
+       |_______|
+       |  🔧   |
+       |_______|
+                `,
+                content: "Down, down, down we go into the bowels of the earth! The Vault-Tec Corporation really knew how to build for the apocalypse. These underground cities are marvels of engineering - if you don't mind the occasional malfunctioning Mister Handy or the fact that Overseer Johnson has declared himself Supreme Ruler for Life.\n\nYou're in Vault 101 (\"Vault 101 - We're proud to say we've never had an opening!\"), and the community is buzzing with excitement. It seems the annual \"Miss Vault\" beauty pageant is about to begin, featuring contestants from every department: Gardeners, Mechanics, Diners, and even the brave souls who work in the Reactor Core.\n\nMeanwhile, a group of rebellious dwellers is planning to stage a production of \"The Crucible\" - a bold political statement if ever there was one!",
+                choices: [
+                    { text: "Attend the Miss Vault beauty pageant 👑", next: "pageant" },
+                    { text: "Join the rebel theater group 🎭", next: "theater" },
+                    { text: "Visit the Vault's experimental laboratory ⚗️", next: "lab" },
+                    { text: "Explore the forbidden maintenance tunnels 🚧", next: "tunnels" }
+                ]
+            },
+            tower: {
+                title: "THE SIGNAL TOWER 📡",
+                ascii: `
+          /\\
+         /  \\
+        /    \\
+       /      \\
+      /        \\
+     /__________\\
+         ||||
+         ||||
+         ||||
+         ||||
+         ||||
+        /||||\\
+       /______\\
+                `,
+                content: "The mysterious signal tower stands tall against the gray winter sky, its red warning lights blinking rhythmically in the distance. According to your Geiger counter (which doubles as a compass in this brave new world), it's emitting a steady stream of... polka music?\n\nAs you approach, you notice the tower is surrounded by a peculiar fence made entirely of bent coat hangers, topped with what appears to be disco balls. A hand-painted sign reads: \"BROADCASTING HAPPINESS SINCE 2026 - ALL FREQUENCIES ARE LIES EXCEPT THIS ONE.\"\n\nNear the entrance, a vending machine offers \"Nuka-Cola Quantum\" for the reasonable price of 3 bottle caps, while a robot janitor named Clanksworth polishes the entrance with obsessive dedication.",
+                choices: [
+                    { text: "Enter the tower through the front door 🚪", next: "towerEntry" },
+                    { text: "Climb the tower using the exterior ladder 🧗", next: "towerClimb" },
+                    { text: "Talk to the robot janitor Clanksworth 🤖", next: "clanksworth" },
+                    { text: "Investigate the coat hanger fence perimeter 🔍", next: "fence" }
+                ]
+            },
+            // Missing branches that were causing dead ends
+            businessman: {
+                title: "THE ETERNAL COMMUTER 👔",
+                content: "You approach the businessman, who looks up with a confused expression. \"Excuse me,\" he says, adjusting his tie, \"but I seem to be a bit lost. I was just heading to the office for my 9 AM meeting, but I can't seem to find the right subway entrance.\"\n\nAfter a lengthy and surprisingly philosophical discussion about the nature of reality, linear time, and the possibility that we're all just characters in someone else's story, you finally manage to convince the businessman that perhaps his commute has been slightly delayed.\n\n\"Oh my,\" he says, looking around with suddenly clear eyes. \"This is rather different from downtown Boston. Still, I suppose it's a lovely change of scenery! Would you care to join me for lunch at that charming picnic?\"\n\nTogether, you spend the afternoon sharing stories and enjoying the peaceful quiet of the post-apocalyptic world. Sometimes the greatest adventures are simply helping others see things from a new perspective.\n\nYour wit stat increases by 2 as you engage in deep conversation.",
+                choices: [
+                    { text: "Join him for lunch and philosophical discussion", next: "philosophical" },
+                    { text: "Continue exploring the ruins", next: "ruins" }
+                ]
+            },
+            roaches: {
+                title: "RAD-ROACH PARLIAMENT 🐛",
+                content: "Curious about what the Rad-Roaches are discussing, you cautiously approach their gathering. To your amazement, they're not just chittering randomly - they're actually debating policy! The motion on the table: \"Should we declare independence from the human food scrap economy and establish our own waste management empire?\"\n\nThe Parliament erupts in enthusiastic chittering (which sounds suspiciously like affirmative votes). They appoint you as their Honorary Ambassador to the Surface World.\n\nUnder your guidance, the Rad-Roaches establish trade relations with the Vault dwellers, the Ghoul communities, and even the Mutant Hounds. You've inadvertently become the architect of the first post-apocalyptic interspecies alliance. Who knew politics could be so rewarding?\n\nYour charm stat increases by 3 as you navigate complex interspecies diplomacy.",
+                choices: [
+                    { text: "Help them draft a constitution", next: "constitution" },
+                    { text: "Negotiate trade agreements with other species", next: "trade" }
+                ]
+            },
+            store: {
+                title: "DEPARTMENT STORE RUINS 🛍️",
+                content: "Searching through the nearby department store ruins, you discover that time has been kind to certain items. The sporting goods section has an intact camping supplies cache, and the electronics department still has some solar chargers that work perfectly.\n\nMost remarkably, you find a pristine copy of \"How to Survive the End of the World\" by Professor James T. Survivorson - a first edition signed by the author! The book contains invaluable tips on everything from water purification to dealing with radioactive wildlife.\n\nAs you're examining your finds, you hear footsteps behind you. Turning around, you see a group of friendly scavengers who've been watching your work. Their leader, a woman named Sarah, compliments your finds and offers to trade some of their medical supplies for your camping gear.\n\nYour survival stat increases by 2 as you assess the value of your discoveries.",
+                choices: [
+                    { text: "Trade camping gear for medical supplies", next: "tradeMedical" },
+                    { text: "Keep everything and head back to the square", next: "ruins" }
+                ]
+            },
+            // Existing branches
+            skyscraper: {
+                title: "SKYSCRAPER ADVENTURE 🧗",
+                ascii: `
+         /\\
+        /  \\
+       /    \\
+      /      \\
+     /        \\
+    /          \\
+   /            \\
+  /______________\\
+  |  🪟  🪟  🪟  |
+  |  🪟  🪟  🪟  |
+  |______________|
+                `,
+                content: "Scaling the partially collapsed skyscraper proves more challenging than expected. Your wit stat increases by 1 as you navigate the treacherous climb. Halfway up, you discover a nest made of office supplies inhabited by a family of highly intelligent office supply mutants - staplers with teeth, paper clips with eyes, and a very dignified three-hole punch that insists on being addressed as \"Professor.\"\n\nFrom your perch, you can see for miles across the irradiated landscape. In the distance, smoke rises from what might be another settlement, and closer to the ground, a caravan of traders moves slowly along the frozen highway.\n\nThe Professor offers you a choice: join their academic society and help catalogue the post-apocalyptic world, or use their vantage point to scout for valuable salvage opportunities.",
+                choices: [
+                    { text: "Join the office supply academics 📚", next: "academics" },
+                    { text: "Scout for salvage opportunities 💰", next: "salvage" }
+                ]
+            },
+            trail: {
+                title: "MAGAZINE TRAIL 📚",
+                ascii: `
+        _______
+       | _____ |
+       ||     ||
+       ||_____|| 
+       |  ___  |
+       | |___| |
+       |_______|
+                `,
+                content: "Following the trail of discarded pre-war magazines leads you on a fascinating journey through pop culture history. You find issues of \"Better Homes and Rad-Shelters,\" \"Post-Apocalyptic Cooking Monthly,\" and \"Ghouls Gone Wild\" magazine.\n\nThe trail ends at what appears to be a makeshift library constructed entirely from shipping containers. A bespectacled librarian named Melvin greets you enthusiastically.\n\n\"Welcome to the Post-Apocalyptic Public Library!\" he announces. \"We have over three million volumes, all carefully preserved in climate-controlled containers. Our special collection includes the complete works of Shakespeare in Braille and a first edition of 'How to Survive the End of the World' signed by the author!\"\n\nMelvin offers you a library card (valid for 50 years) and asks if you'd like a tour or if you're interested in checking out some books.",
+                choices: [
+                    { text: "Take the library tour 📖", next: "libraryTour" },
+                    { text: "Check out some books 📚", next: "checkoutBooks" }
+                ]
+            },
+            tunnels: {
+                title: "FORBIDDEN TUNNELS 🚧",
+                ascii: `
+        _______
+       /       \\
+      |  🔦    |
+      |   ||    |
+      |   ||    |
+      |___||____|
+         /  \\
+        /____\\
+                `,
+                content: "Sneaking into the forbidden maintenance tunnels requires all your survival skills. Your survival stat increases by 1 as you navigate the dark passages. The tunnels are a maze of pipes, wires, and mysterious machinery that hums with residual power.\n\nYou encounter a group of \"Tunnel Rats\" - Vault dwellers who've been living underground for years, having rejected the surface world entirely. They've established their own society with a complex barter system based on bottle caps, pre-war coins, and rare trading cards.\n\nTheir leader, a charismatic figure known only as \"The Mole,\" offers you a choice: join their underground utopia or help them establish trade relations with the surface world.",
+                choices: [
+                    { text: "Join the underground utopia 🕳️", next: "underground" },
+                    { text: "Help establish surface trade relations 🤝", next: "trade" }
+                ]
+            },
+            towerEntry: {
+                title: "TOWER ENTRY 🚪",
+                ascii: `
+        _______
+       |  🚪   |
+       | ENTER |
+       |_______|
+       | 🔘🔘🔘 |
+       |_______|
+                `,
+                content: "Entering through the front door, you're greeted by an automated voice: \"Welcome to Happy Broadcasting Station WXYZ! Please deposit one smile to proceed.\" The reception area is decorated with 1950s memorabilia and motivational posters featuring slogans like \"Every Day is a Happy Day!\" and \"Think Positive Thoughts!\"\n\nA receptionist robot shaped like a giant smiley face directs you to the elevator. \"Take it to floor 101 for happiness programming, floor 202 for sadness remediation, or floor 303 for existential crisis counseling.\"\n\nAs you wait for the elevator, you notice that all the magazines in the lobby are identical copies of \"The Joy of Nuclear Winter\" and the background music is an endless loop of ukulele covers of classical music.",
+                choices: [
+                    { text: "Go to happiness programming (floor 101) 😊", next: "happiness" },
+                    { text: "Visit sadness remediation (floor 202) 😢", next: "sadness" },
+                    { text: "Try existential crisis counseling (floor 303) 🤔", next: "existential" }
+                ]
+            },
+            clanksworth: {
+                title: "CLANKSWORTH THE JANITOR 🤖",
+                ascii: `
+        _______
+       |  🤖   |
+       | CLEAN |
+       |_______|
+       | 🧹☕  |
+       |_______|
+                `,
+                content: "Clanksworth turns out to be surprisingly philosophical for a janitor robot. \"I have been polishing this entrance for seventeen years, three months, and sixteen days,\" he states in a monotone voice. \"In that time, I have contemplated the meaning of cleanliness, the nature of duty, and whether my existence has purpose beyond the removal of dust.\"\n\nHe offers to show you his personal collection of lint, which he's organized by color, texture, and probable origin. \"This specimen,\" he says, holding up a particularly fluffy piece, \"came from the pocket of a man who visited in 2028. He was worried about his mortgage.\"\n\nClanksworth's charm stat increases by 2 as you engage in deep conversation about the philosophy of janitorial work and the poetry of dust accumulation.",
+                choices: [
+                    { text: "Catalogue lint specimens with Clanksworth 🧵", next: "lint" },
+                    { text: "Discuss the metaphysics of cleaning 🧹", next: "metaphysics" }
+                ]
+            },
+            fence: {
+                title: "COAT HANGER FENCE 🔍",
+                ascii: `
+        ========
+        ||  ||  
+        ||  ||  
+        ||  ||  
+        ||  ||  
+        ========
+        \\    /
+         \\  /
+          \\/
+                `,
+                content: "Investigating the coat hanger fence reveals it to be an elaborate art installation created by a collective of pre-war fashion designers who survived the apocalypse by embracing their new medium. Each hanger has been carefully bent and arranged to form intricate patterns that shimmer in the snow.\n\nThe artists emerge from hiding - they've been living in a yurt constructed from discarded mannequins and fabric scraps. Their leader, a former haute couture designer named Coco Mutante, explains that they've dedicated their post-apocalyptic lives to transforming the mundane into the magnificent.\n\n\"Fashion doesn't end with civilization,\" Coco declares dramatically. \"It evolves! And now, we shall create for you a garment that will make you the most stylish survivor in the wasteland!\"\n\nYour luck stat increases by 1 as you're selected for this honor.",
+                choices: [
+                    { text: "Commission a post-apocalyptic haute couture outfit 👗", next: "couture" },
+                    { text: "Collaborate on a coat hanger sculpture 🎨", next: "sculpture" }
+                ]
+            },
+            // Frozen Wasteland branches
+            picnic: {
+                title: "GHOUL PICNIC 🧺",
+                ascii: `
+          🧺  🧺  🧺
+         (  🍽️  🍽️  )
+          \\______/
+           |    |
+          /      \\
+         /________\\
+                `,
+                content: "The Ghouls welcome you warmly to their picnic, offering you a seat on one of their checkered blankets. Despite their somewhat unsettling appearance (greenish skin, sunken eyes), they're incredibly polite and well-mannered. The eldest Ghoul, a distinguished gentleman named Reginald, explains that they meet here every Sunday to enjoy fine pre-war cuisine and discuss literature.\n\nToday's topic of discussion is \"The Great Gatsby\" - they're fascinated by the parallels between the novel's themes of decadence and social upheaval and their own experiences in the post-apocalyptic world. The dessert is a particularly exquisite radioactive apple pie that glows faintly but tastes surprisingly delicious.\n\nAs the afternoon progresses, you find yourself genuinely enjoying their company and intellectual conversation. Reginald offers you a copy of their annotated edition of \"Wasteland Survival Guide\" - a tome of collected wisdom from centuries of Ghoul scholarship.",
+                choices: [
+                    { text: "Join their literary discussion group", next: "literature" },
+                    { text: "Ask about their pre-war experiences", next: "ghoulHistory" }
+                ]
+            },
+            
+            hounds: {
+                title: "PLAY WITH MUTANT HOUNDS 🐕",
+                ascii: `
+          /\\   /\\   /\\
+         (  .)(  .)(  .)
+          )  )(  )(  )(
+         (  v )( v )( v )
+        ^^  |  |  |  |  ^^
+           /\\/\\/\\/\\/\\/\\
+                `,
+                content: "The Mutant Hounds are thrilled to have a new playmate! They're surprisingly gentle despite their intimidating appearance - three heads, matted fur, and teeth the size of steak knives. Their favorite game seems to be a hybrid of fetch and hide-and-seek.\n\nDuring the game, you discover that these hounds are actually quite intelligent. They respond to complex commands and seem to understand abstract concepts. Their owner, a grizzled wasteland wanderer named Captain Shepherd, explains that they're former military dogs who gained their mutations during the Great Detonation.\n\n\"They're the finest companions a man could ask for,\" he says proudly. \"Saved my bacon more times than I can count. Why, just last week, they helped me track down a caravan of raiders who'd stolen my favorite coffee maker.\"\n\nCaptain Shepherd offers to let you travel with his pack for a while, or you can continue your solo adventure.",
+                choices: [
+                    { text: "Join Captain Shepherd and his hound pack", next: "travelPack" },
+                    { text: "Continue exploring on your own", next: "wasteland" }
+                ]
+            },
+            
+            crater: {
+                title: "GLOWING CRATER ☄️",
+                ascii: `
+          ________
+         /        \\
+        |  ☢️  ☢️  |
+        |  \\__/  |
+         \\______/
+          |    |
+          |____|
+                `,
+                content: "As you approach the glowing crater, your Geiger counter starts clicking frantically. The radiation levels are dangerously high, but strangely, the vegetation around the rim is thriving - larger and more vibrant than anywhere else in the wasteland.\n\nAt the center of the crater, you discover something remarkable: a perfectly preserved pre-war research facility, shielded from the elements by what appears to be a still-functional dome force field. The facility's automated systems are still operational, maintaining a small botanical garden of exotic plants.\n\nA holographic researcher named Dr. Bloom appears to greet you. \"Welcome,\" she says cheerfully. \"I've been waiting decades for someone to discover us. Would you like to see what we've been working on?\"\n\nDr. Bloom explains that they've been developing radiation-resistant crops that could feed entire settlements. She offers you a sample of their latest invention: glow-in-the-dark carrots that neutralize radiation poisoning.",
+                choices: [
+                    { text: "Accept Dr. Bloom's offer to join the research team", next: "researchTeam" },
+                    { text: "Take some radiation-neutralizing carrots and leave", next: "carrots" }
+                ]
+            },
+            
+            // Underground Vault branches
+            pageant: {
+                title: "MISS VAULT BEAUTY PAGEANT 👑",
+                ascii: `
+          👑  👑  👑
+         (  😊  😊  )
+          \\______/
+           |    |
+          /      \\
+         /________\\
+                `,
+                content: "The Miss Vault beauty pageant is an elaborate affair, held in the main atrium of Vault 101. Contestants from every department showcase their talents - the Gardeners present their finest radishes, the Mechanics demonstrate their skill with wrenches, the Diners prepare gourmet meals from ration packs, and the Reactor Core workers explain the intricacies of fusion power.\n\nThe pageant has an unexpected twist - rather than focusing on traditional beauty, the judges evaluate contestants based on their contributions to Vault society. The winner will become the Vault's official Ambassador to the outside world.\n\nAs you watch the proceedings, you realize this is more than just entertainment - it's a serious attempt to select the best representative for humanity's future. The current favorite is Janet from Hydroponics, whose presentation on \"Growing Hope in the Dark\" has moved the audience to tears.\n\nThe Vault Overseer notices your interest and offers you a chance to participate as a special guest judge.",
+                choices: [
+                    { text: "Serve as a guest judge for the pageant", next: "judge" },
+                    { text: "Speak with the contestants about life outside", next: "contestants" }
+                ]
+            },
+            
+            theater: {
+                title: "REBEL THEATER GROUP 🎭",
+                ascii: `
+          🎭  🎭  🎭
+         (  👥  👥  )
+          \\______/
+           |    |
+          /      \\
+         /________\\
+                `,
+                content: "The rebel theater group meets in the abandoned storage level, where they've converted a warehouse into an impressive impromptu theater. Their production of \"The Crucible\" is a thinly veiled critique of Overseer Johnson's authoritarian rule.\n\nThe group's leader, a former drama teacher named Ms. Henderson, explains that theater is their way of preserving truth and fighting oppression. Their performances have become a form of resistance, with coded messages that the community understands but the authorities miss.\n\nTonight's rehearsal is particularly intense, as they're preparing for a performance that will be attended by delegates from other Vaults. The stakes are high - if they're discovered, the consequences could be severe.\n\nMs. Henderson offers you a role in the production, or invites you to help with behind-the-scenes work to ensure the performance goes smoothly.",
+                choices: [
+                    { text: "Take a starring role in the play", next: "actor" },
+                    { text: "Help with backstage security and logistics", next: "security" }
+                ]
+            },
+            
+            lab: {
+                title: "VAULT EXPERIMENTAL LABORATORY ⚗️",
+                ascii: `
+          ⚗️  ⚗️  ⚗️
+         (  🔬  🔬  )
+          \\______/
+           |    |
+          /      \\
+         /________\\
+                `,
+                content: "The Vault's experimental laboratory is a fascinating place, filled with pre-war technology that the scientists have been trying to understand and improve. The lead researcher, Dr. Sarah Chen, shows you their latest projects - including attempts to purify water more efficiently, grow food with less power consumption, and even develop medical treatments for radiation exposure.\n\nOne experiment catches your attention - a prototype device that can detect and neutralize harmful radiation at a distance. Dr. Chen explains that if they can perfect it, it could make large areas of the wasteland safe for habitation again.\n\nHowever, the lab is also conducting some ethically questionable research on Vault residents who have been exposed to unusual levels of radiation, trying to understand mutation effects. The subjects are volunteers, but some people question whether they truly understood what they were agreeing to.\n\nDr. Chen offers you a chance to assist with the beneficial research or investigate the concerning experiments.",
+                choices: [
+                    { text: "Help with the radiation neutralization project", next: "radiationResearch" },
+                    { text: "Investigate the questionable human experiments", next: "investigate" }
+                ]
+            },
+            
+            // Tower branches
+            towerClimb: {
+                title: "TOWER CLIMBING ADVENTURE 🧗",
+                ascii: `
+          /\\
+         /  \\
+        /    \\
+       /      \\
+      /        \\
+     /__________\\
+     |          |
+     |  🪜  🪜  |
+     |          |
+     |__________|
+                `,
+                content: "Climbing the exterior ladder of the signal tower is more challenging than expected. The metal rungs are rusted and occasionally creak ominously in the wind. Halfway up, you discover that the tower isn't just broadcasting - it's also receiving signals from all over the wasteland.\n\nAt a midway platform, you find a small maintenance room containing sophisticated equipment that's far more advanced than anything else in the area. A logbook reveals that someone has been monitoring communications between distant settlements, tracking the movements of caravans, and even intercepting messages from raiders.\n\nThe equipment appears to be pre-war military grade, suggesting this tower served a strategic purpose during the conflict. Among the intercepted messages, you find reports of a rumored safe zone far to the north - a place where the radiation levels are low and communities are thriving.\n\nAs you continue climbing, you hear voices from above - someone else is up there, and they've noticed your presence.",
+                choices: [
+                    { text: "Continue climbing to investigate the voices", next: "investigateTower" },
+                    { text: "Examine the intercepted communications more closely", next: "communications" }
+                ]
+            },
+            
+            // Vault continuation branches
+            judge: {
+                title: "PAGEANT JUDGE 👑",
+                content: "Serving as a guest judge for the Miss Vault beauty pageant gives you unique insight into Vault society. Rather than evaluating physical appearance, you're asked to score contestants on their contributions to community welfare, innovation, and leadership potential.\n\nThe competition is fierce but good-natured. Janet from Hydroponics presents a compelling vision for expanding food production. Marcus from Maintenance demonstrates a revolutionary water recycling system. Dr. Peterson from the Clinic shares breakthrough research on radiation treatment.\n\nAs you deliberate with the other judges, you realize the winner will have a tremendous responsibility as Vault 101's ambassador to the outside world. The pressure is enormous - their decisions could affect the survival of humanity itself.\n\nAfter much discussion, the judges announce the winner, who immediately begins preparing for their diplomatic mission. The Overseer commends your judgment and offers you a position as an advisor to the new ambassador.",
+                ending: "advisor"
+            },
+            
+            contestants: {
+                title: "CONTESTANT CONVERSATIONS 💬",
+                content: "Speaking with the pageant contestants gives you fascinating insights into life inside Vault 101. Each contestant represents a different aspect of Vault society, and their perspectives vary dramatically.\n\nJanet from Hydroponics dreams of seeing the surface world and believes Vault 101 has a responsibility to share its agricultural innovations. Marcus from Maintenance is more cautious, worried that contact with the outside world might expose the Vault's vulnerabilities.\n\nDr. Peterson from the Clinic has been treating radiation sickness in workers and believes the outside world desperately needs medical help. But Overseer Johnson's propaganda has convinced many residents that the surface is still too dangerous.\n\nAs you talk with the contestants, you realize they're all grappling with the same fundamental question: Should humanity remain isolated and safe, or take risks to rebuild civilization? Their answers will shape the Vault's future.\n\nOne contestant, a young engineer named Alex, secretly asks if you could help them escape to the surface regardless of the pageant outcome.",
+                choices: [
+                    { text: "Help Alex escape to the surface", next: "escape" },
+                    { text: "Report Alex's plans to the Overseer", next: "report" }
+                ]
+            },
+            
+            actor: {
+                title: "STAGE ACTOR 🎭",
+                content: "Taking a starring role in the rebel theater group's production of \"The Crucible\" proves to be both exhilarating and dangerous. Your performance as John Proctor becomes a powerful symbol of resistance against unjust authority.\n\nThe rehearsals are intense, with Ms. Henderson pushing everyone to deliver authentic, emotionally charged performances. The parallels between the play's themes and the Vault's situation are unmistakable - Overseer Johnson has become a tyrant, and the residents must choose between conformity and truth.\n\nOn opening night, the audience includes not just Vault residents but also several of Overseer Johnson's guards, who were invited as a gesture of goodwill. As the play progresses, you can feel the tension in the air. The guards seem to recognize the political implications of certain scenes.\n\nDuring the climactic scene, where Proctor chooses death over compromising his integrity, you're overwhelmed by the audience's response. The performance becomes a catalyst for change in the Vault.\n\nAfter the show, Ms. Henderson reveals that several influential residents have been inspired to challenge the Overseer's authority.",
+                ending: "performer"
+            },
+            
+            security: {
+                title: "THEATER SECURITY CHIEF 🛡️",
+                content: "Helping with backstage security and logistics for the rebel theater group's production puts you in a position of trust. Your job is to ensure that the performance proceeds smoothly while protecting the cast and crew from potential retaliation by Overseer Johnson's forces.\n\nYou organize a network of lookouts throughout the Vault, using children and maintenance workers to monitor guard movements. You also prepare emergency escape routes in case the performance is disrupted.\n\nThe night of the show, tensions run high. Several guards appear in the audience, and you notice others positioning themselves near the exits. During a crucial scene that criticizes the Overseer's policies, one of the guards stands up and starts shouting.\n\nThinking quickly, you activate your contingency plan. The cast improvises a new ending while the audience is quietly evacuated through hidden passages. The performance becomes a legendary moment of resistance in Vault history.\n\nAfter the successful show, the rebel group asks you to join their inner circle, which is planning more ambitious acts of defiance.",
+                ending: "resistanceLeader"
+            },
+            
+            radiationResearch: {
+                title: "RADIATION RESEARCH ASSISTANT ☢️",
+                content: "Assisting Dr. Chen with the radiation neutralization project immerses you in cutting-edge post-apocalyptic science. The prototype device uses a combination of electromagnetic fields and specialized minerals to break down radioactive isotopes at the molecular level.\n\nProgress is slow but promising. Initial tests show a 30% reduction in localized radiation levels, and the team is optimistic about scaling up the technology. However, the device requires enormous amounts of power, which the Vault can barely spare.\n\nDr. Chen confides that she believes this technology could make vast areas of the wasteland habitable again, but she's concerned that Overseer Johnson might suppress the research to maintain the Vault's isolation.\n\nAs you work late in the lab, you discover that the device has an unexpected side effect - it seems to accelerate the growth of certain plants, creating a potential solution to food scarcity as well.\n\nDr. Chen offers you a permanent position on the research team, with the possibility of leading field tests in the wasteland.",
+                choices: [
+                    { text: "Accept the research position and lead field tests", next: "fieldResearch" },
+                    { text: "Share the technology with other Vaults", next: "shareTech" }
+                ]
+            },
+            
+            investigate: {
+                title: "ETHICS INVESTIGATION 🔍",
+                content: "Investigating the questionable human experiments in the Vault laboratory reveals a disturbing pattern. Several residents who were exposed to high levels of radiation have been subjected to invasive procedures without proper informed consent.\n\nThe researchers claim that the subjects volunteered, but your investigation shows that many didn't fully understand the risks involved. Some were promised medical treatment for radiation sickness that they weren't actually receiving.\n\nDr. Chen defends the research as necessary for humanity's survival, arguing that the knowledge gained could save millions of lives. But the subjects' families are outraged, and rumors of the experiments are spreading throughout the Vault.\n\nYou're faced with a moral dilemma - expose the unethical practices and risk halting potentially life-saving research, or remain silent and allow the exploitation to continue.\n\nBefore you can decide, one of the test subjects approaches you with evidence that the researchers have been falsifying data to make their results appear more promising.",
+                choices: [
+                    { text: "Expose the unethical experiments to the Vault community", next: "expose" },
+                    { text: "Work with Dr. Chen to improve ethical oversight", next: "reform" }
+                ]
+            },
+            
+            // Tower continuation branches
+            investigateTower: {
+                title: "TOWER INVESTIGATION 🔍",
+                content: "Continuing your climb up the signal tower, you discover that the voices belong to a group of pre-war military personnel who have been maintaining the facility for decades. They're part of a secret organization that has been coordinating survivor communities across the wasteland.\n\nTheir leader, Colonel Martinez, explains that the tower serves as a communication hub for what they call the \"New America Resistance\" - a network of settlements working together to rebuild civilization. The cheerful broadcasts are actually coded messages containing vital information.\n\nMartinez shows you maps marking the locations of allied communities, supply caches, and danger zones. He also reveals that they've been monitoring your movements and have been impressed with your travels through the wasteland.\n\nThe group offers you a position as a liaison between the tower and the surface communities you've visited. They believe your diverse experiences make you uniquely qualified to help coordinate their efforts.\n\nHowever, accepting their offer would require leaving the relative safety of your current adventures to take on a more serious role in the post-apocalyptic resistance movement.",
+                ending: "resistanceLiaison"
+            },
+            
+            communications: {
+                title: "COMMUNICATIONS ANALYST 📡",
+                content: "Examining the intercepted communications in the tower's maintenance room reveals a treasure trove of information about the post-apocalyptic world. Messages from distant settlements describe everything from successful agricultural experiments to devastating raider attacks.\n\nAmong the most intriguing intercepts are reports of a massive underground facility where pre-war scientists have been working on terraforming technology. If their research is accurate, they might be able to restore large areas of the wasteland to their pre-war state.\n\nYou also discover that several settlements have been coordinating their efforts through the tower's network, sharing resources and defending against common threats. The tower operators have become the de facto leaders of a loose confederation of survivor communities.\n\nThe head operator, a woman named Sarah, recognizes your potential and offers you training in communications technology. With your help, they could expand their network to include even more settlements.\n\nSarah explains that this work requires giving up the freedom of exploration for the satisfaction of helping to rebuild civilization.",
+                ending: "communicationsExpert"
+            },
+            
+            // Frozen Wasteland continuation branches
+            literature: {
+                title: "GHOUL LITERARY SCHOLAR 📚",
+                content: "You become a regular attendee at the Ghouls' literary discussions, diving deep into classic works and post-apocalyptic philosophy. Reginald takes you under his wing, sharing centuries of accumulated knowledge about the world before and after the Great Detonation.\n\nUnder his tutelage, you develop a unique perspective on the cyclical nature of civilization and the importance of preserving knowledge for future generations. The Ghouls' library contains rare pre-war texts that have been meticulously copied and preserved over the decades.\n\nEventually, Reginald offers you a position as the official Chronicler of Ghoul History, tasked with documenting the experiences of the various survivor communities and maintaining the continuity of human knowledge through the dark ages.\n\nYour wit stat increases by 3, and you gain a \"Historical Manuscript\" for your inventory.",
+                ending: "chronicler"
+            },
+            
+            ghoulHistory: {
+                title: "GHOUL HISTORIAN 📜",
+                content: "The Ghouls' stories of pre-war life are fascinating and surprisingly detailed. Reginald explains that many Ghouls were actually present during the Great Detonation, either as government officials, scientists, or civilians who happened to be in protected locations.\n\nTheir unique longevity (a side effect of their mutation) has given them a front-row seat to history. They've witnessed the rise and fall of dozens of survivor settlements, the evolution of mutant species, and the gradual healing of the irradiated landscape.\n\nAs you listen to their accounts, you realize that their perspective could be invaluable for understanding the patterns of post-apocalyptic society. Reginald suggests that you could become the first official liaison between Ghoul communities and other survivor groups.\n\nYour charm stat increases by 2, and you gain a \"Historical Record\" for your inventory.",
+                ending: "historian"
+            },
+            
+            travelPack: {
+                title: "WASTELAND WANDERER 🐾",
+                content: "Traveling with Captain Shepherd and his pack of Mutant Hounds proves to be an incredible adventure. They know every safe path through the wasteland, every hidden oasis, and every dangerous area to avoid.\n\nAlong the way, you help settle disputes between settlements, track down lost supplies, and even uncover a hidden cache of pre-war technology. The hounds' incredible senses make them perfect partners for exploration and rescue missions.\n\nEventually, you're offered a permanent position as part of Captain Shepherd's crew - a group of wanderers who serve as messengers, mediators, and protectors for settlements across the wasteland.\n\nYour survival stat increases by 3, and you gain a \"Compass Rose\" for your inventory.",
+                ending: "wanderer"
+            },
+            
+            researchTeam: {
+                title: "RADIATION RESEARCH SCIENTIST ☢️",
+                content: "Joining Dr. Bloom's research team opens up a whole new world of scientific discovery. The facility's advanced equipment and pristine conditions allow for experiments that would be impossible elsewhere in the wasteland.\n\nWorking with the automated systems and holographic researchers, you help develop new strains of radiation-resistant crops, innovative decontamination techniques, and even early prototypes of radiation-powered devices.\n\nYour work contributes directly to the survival and prosperity of wasteland communities. Eventually, you're offered the position of Lead Researcher for the newly formed Wasteland Science Consortium, coordinating efforts between multiple research facilities.\n\nYour wit stat increases by 4, and you gain a \"Scientific Thesis\" for your inventory.",
+                ending: "scientist"
+            },
+            
+            carrots: {
+                title: "RADIATION REMEDY DISTRIBUTOR 🥕",
+                content: "Taking a sample of the radiation-neutralizing carrots, you realize their potential to help countless survivors suffering from radiation poisoning. You convince Dr. Bloom to let you become a distributor for their invention.\n\nArmed with a portable growing kit and several samples of the miraculous carrots, you travel from settlement to settlement, treating radiation sickness and teaching others how to cultivate their own healing gardens.\n\nYour work saves hundreds of lives and helps establish the first truly sustainable agriculture in the wasteland. You become known as the \"Carrot Crusader,\" a beloved figure who brings hope and healing wherever you go.\n\nYour survival stat increases by 2, and you gain a \"Healing Carrot Seed\" for your inventory.",
+                ending: "healer"
+            },
+            
+            // Vault continuation branches
+            escape: {
+                title: "VAULT ESCAPE ARTIST 🏃",
+                content: "Helping Alex escape from Vault 101 turns out to be more challenging than expected. The Vault's security systems are sophisticated, and Overseer Johnson has restricted access to the entrance after the pageant incident.\n\nYou devise an elaborate plan involving maintenance tunnels, timing shifts in the security schedule, and creating distractions throughout the Vault. Alex proves to be resourceful, having already mapped several potential escape routes.\n\nDuring the escape attempt, you're confronted by Overseer Johnson himself, who tries to convince you that the outside world is still too dangerous. But Alex's determination and your own experiences have shown you otherwise.\n\nAfter a tense standoff, you manage to reach the surface through an old utility tunnel that the Overseer thought was sealed. As you emerge into the sunlight, you realize that despite the radiation and dangers, the outside world feels like freedom.\n\nAlex thanks you profusely and heads off to find other survivor communities. You're left to explore the wasteland on your own terms.",
+                ending: "escapee"
+            },
+            
+            report: {
+                title: "VAULT INFORMANT 🕵️",
+                content: "Reporting Alex's escape plans to Overseer Johnson earns you his gratitude and trust. He reveals that he's been aware of the rebel theater group and other dissident activities but has been allowing them to continue under surveillance.\n\n\"Sometimes,\" he explains, \"a little rebellion keeps the population engaged and prevents more serious uprisings. But we must draw the line at actual escape attempts.\"\n\nJohnson offers you a position in his security apparatus, where you would help identify and neutralize genuine threats to Vault stability. He believes your outsider perspective makes you particularly effective at spotting dissent.\n\nAs you accept his offer, you're given access to classified information about the Vault's true purpose and the extent of the Overseer's control over the residents' lives. You realize that your role will involve manipulating people's perceptions of reality.\n\nDespite the moral ambiguity of your new position, you're well-compensated and have access to the Vault's best resources. The question is whether you can live with the consequences of your choices.",
+                ending: "informant"
+            },
+            
+            fieldResearch: {
+                title: "FIELD RESEARCH LEADER 🔬",
+                content: "Accepting Dr. Chen's offer to lead field tests of the radiation neutralization technology takes you far beyond the Vault's walls. You travel to some of the most heavily contaminated areas of the wasteland, accompanied by a team of researchers and armed guards.\n\nThe device proves remarkably effective, reducing radiation levels in test sites by up to 60%. But you also discover that its plant-acceleration side effect has created strange new ecosystems where mutated flora thrives in the cleansed areas.\n\nWord of your success spreads throughout the wasteland, and soon settlements are requesting your assistance. You become a legend among survivors, known as the person who can make the deadliest areas safe again.\n\nDr. Chen suggests establishing a mobile research unit that could travel between communities, bringing both the technology and medical expertise they need. This would require giving up the security of Vault life for a nomadic existence, but the potential to help thousands of people is enormous.\n\nAs you contemplate this decision, you receive requests from multiple directions - some wanting your help, others warning of dangers ahead.",
+                ending: "fieldScientist"
+            },
+            
+            shareTech: {
+                title: "TECHNOLOGY SHARING ADVOCATE 🤝",
+                content: "Instead of keeping the radiation neutralization technology secret, you convince Dr. Chen to share it with other Vaults and survivor communities. This requires careful diplomacy, as each group has different concerns about intellectual property and competitive advantage.\n\nYou organize a series of meetings between representatives from various settlements, facilitating negotiations that result in a collaborative research consortium. Each community contributes resources and expertise, accelerating development far beyond what any single group could achieve.\n\nYour role evolves into that of a technology broker, helping to match innovations with communities that need them most. You also establish safety protocols to prevent misuse of the devices and ensure that the benefits are distributed fairly.\n\nThe project's success transforms the post-apocalyptic landscape. Areas that were once death traps become habitable, and the increased cooperation between communities lays the groundwork for a more unified society.\n\nEventually, you're invited to serve on the governing council of the New Wasteland Federation, where your experience with collaborative technology development proves invaluable.",
+                ending: "techBroker"
+            },
+            
+            expose: {
+                title: "WHISTLEBLOWER 🔊",
+                content: "Exposing the unethical experiments in the Vault laboratory creates an immediate crisis. The evidence you present to the community meeting is undeniable, and outrage spreads quickly through the resident population.\n\nOverseer Johnson attempts to suppress the information, but the test subjects and their families organize a protest that draws unprecedented numbers. The researchers are suspended pending investigation, and demands for democratic reforms grow louder.\n\nYou're hailed as a hero by many residents, but others blame you for disrupting the Vault's stability. Some even suggest that the research was necessary and that you've endangered everyone by stopping it.\n\nThe controversy leads to the first free election in Vault 101's history. Several candidates emerge with different visions for the community's future - some favoring continued isolation, others advocating for engagement with the outside world.\n\nAs a key witness in the ethics investigation, you're asked to serve as an advisor to the new leadership, regardless of who wins the election.",
+                ending: "whistleblower"
+            },
+            
+            reform: {
+                title: "ETHICS REFORM ADVISOR 📋",
+                content: "Rather than destroying the research program, you work with Dr. Chen to implement strict ethical oversight for all human experiments. This involves establishing an independent review board, revising consent procedures, and ensuring that subjects receive genuine medical benefits.\n\nThe reformed program actually produces better results, as researchers are forced to be more creative and rigorous when they can't rely on exploitative practices. Several breakthrough treatments emerge from studies that would have been impossible under the old system.\n\nYour role expands to include training other Vaults and settlements in ethical research practices. You become known throughout the wasteland as an advocate for balancing scientific progress with human dignity.\n\nThe Vault's medical capabilities grow dramatically, attracting injured survivors from across the region. What began as a crisis becomes an opportunity to transform Vault 101 into a regional center for humanitarian medicine.\n\nEventually, you're offered a position as Director of Medical Ethics for the Wasteland Health Council, where you can apply your lessons on a larger scale.",
+                ending: "ethicsAdvisor"
+            },
+            
+            // New intermediate branches
+            philosophical: {
+                title: "PHILOSOPHICAL DISCUSSION 🤔",
+                content: "Over sandwiches (appropriately post-apocalyptic canned meat on stale bread), you and the businessman engage in a fascinating discussion about the nature of existence. He reveals he's been waiting for his morning commute for what feels like decades, but time seems to have... stopped for him.\n\n\"You know,\" he muses, adjusting his tie for the hundredth time, \"perhaps the real commute was the friends we made along the way.\"\n\nHis philosophical insight resonates with you, and you realize that sometimes the most profound truths come from the most unexpected places. The businessman thanks you for helping him find perspective and decides to explore the new world rather than wait for his mythical subway.\n\nYour wit stat increases by 2, and you gain a \"Philosophical Insight\" for your inventory.",
+                ending: "philosophical"
+            },
+            constitution: {
+                title: "RAD-ROACH CONSTITUTION 📜",
+                content: "Working with the Rad-Roaches, you help draft the first Constitution of the Independent Rad-Roach Republic. The document is surprisingly comprehensive, covering everything from waste management rights to inter-species trade agreements.\n\nArticle I, Section 1 states: \"All Rad-Roaches shall have the right to chitter freely, provided such chittering does not disturb the sleep of neighboring humans.\"\n\nArticle VII, Section 3 establishes the \"Great Cheese Wheel,\" a rotating council of elder Rad-Roaches who make important decisions for the colony.\n\nThe constitution is ratified unanimously (with much enthusiastic chittering), and you're awarded the \"Order of the Golden Antenna\" for your contribution to interspecies democracy.\n\nYour charm stat increases by 3, and you gain the \"Order of the Golden Antenna\" for your inventory.",
+                ending: "constitution"
+            },
+            trade: {
+                title: "INTER-SPECIES TRADE AGREEMENT 🤝",
+                content: "As the Rad-Roach Ambassador, you facilitate the first formal trade agreement between the insect republic and the surface dwellers. The deal is mutually beneficial:\n\n- Rad-Roaches provide expert waste management and recycling services\n- Humans offer protection from larger predators and access to pre-war technology\n- Ghouls contribute agricultural expertise and fermented beverages\n- Mutant Hounds provide courier services and security\n\nThe agreement is signed with a ceremonial cheese wheel (a traditional Rad-Roach diplomatic gesture) and witnessed by representatives from all species. Your diplomatic success helps establish a model for peaceful coexistence in the post-apocalyptic world.\n\nYour charm stat increases by 4, and you gain a \"Diplomatic Pouch\" for your inventory.",
+                ending: "diplomat"
+            },
+            tradeMedical: {
+                title: "SCAVENGER TRADE NEGOTIATION 💼",
+                content: "The trade negotiation with the scavenger group goes better than expected. Sarah, their leader, is impressed with your finds and offers a generous trade:\n\n- Camping gear (tent, sleeping bag, portable stove)\n- Solar chargers and LED lantern\n- In exchange for: Medical supplies, antibiotics, and painkillers\n\nThe deal benefits both parties - you gain essential medical supplies while they acquire gear that will help them survive the harsh winter. Sarah invites you to join their group, explaining that they're heading toward a rumored settlement where survivors have established a functioning community.\n\nYour survival stat increases by 2, and you gain a \"First Aid Kit\" for your inventory.",
+                choices: [
+                    { text: "Join the scavenger group", next: "scavengerGroup" },
+                    { text: "Continue exploring alone", next: "ruins" }
+                ]
+            },
+            scavengerGroup: {
+                title: "SCAVENGER COMMUNITY 🏘️",
+                content: "Traveling with the scavenger group, you reach the rumored settlement - a thriving community of survivors who've converted an old shopping mall into a self-sufficient town. The residents have established farms in the parking lot, set up workshops in the stores, and even created a school for children.\n\nThe town mayor, a former city planner named David, welcomes newcomers and offers you a place in the community. You can choose any role that suits your skills:\n\n- Join the farming collective\n- Work in the workshop crafting tools and repairs\n- Help with education and knowledge preservation\n- Serve as a trader connecting with other settlements\n\nYour adaptability impresses the community leaders, and you quickly become an integral part of this hopeful new society.",
+                ending: "community"
+            },
+            // Endings
+            academics: {
+                title: "ACADEMIC ASCENDANCE 📚",
+                ascii: `
+        _______
+       |  PhD  |
+       |   🎓   |
+       |_______|
+       |📚📚📚|
+       |_______|
+                `,
+                content: "Joining the office supply academics proves to be the most intellectually stimulating experience of your post-apocalyptic life. Professor Three-Hole Punch (Ph.D. in Paper Sciences) takes you under his wing, teaching you the subtle art of document organization and the complex mathematics of staple geometry.\n\nYour contributions to their research on \"The Socioeconomic Impact of Stapler Design on Post-War Office Culture\" earn you a doctorate in Applied Stationery Studies. You become the youngest person ever to achieve tenure at the Copley Square Institute of Office Supply Philosophy.\n\nThe other academics elect you as their Dean of Staple Relations, a position of great honor and responsibility.",
+                ending: "academic"
+            },
+            salvage: {
+                title: "SALVAGE SPECIALIST 💰",
+                content: "Using the office supply mutants' vantage point, you identify numerous salvage opportunities throughout the ruins. Your keen eye for valuable pre-war items earns you a reputation as the best scavenger in three Vaults.\n\nYou establish \"Skyline Salvage Solutions,\" a company specializing in hard-to-reach urban recovery operations. Your clients include Vault dwellers, Ghoul communities, and even a Super Mutant clan who need their crashed airplane cleared from their territory.\n\nYou become wealthy enough to retire to a comfortable bunker filled with all the pre-war comforts you could desire.",
+                ending: "salvage"
+            },
+            libraryTour: {
+                title: "LIBRARY CURATOR 📖",
+                content: "The tour of the Post-Apocalyptic Public Library is absolutely fascinating. Melvin shows you the Rare Books Section (containing two copies of \"The Joy of Cooking\" and one copy of \"Cooking the Joy of\"), the Children's Corner (where the books are printed on asbestos paper for safety), and the Special Collections Room (housing the world's largest collection of expired coupons).\n\nImpressed by your obvious love of literature, Melvin offers you the position of Head Librarian. Under your leadership, the library expands to include digital archives (stored on vacuum tube computers), oral history programs, and a popular book club that meets in the climate-controlled shipping containers.\n\nYou spend your days preserving knowledge for future generations and helping survivors find the information they need to rebuild civilization.",
+                ending: "librarian"
+            },
+            checkoutBooks: {
+                title: "BOOK COLLECTOR 📚",
+                content: "Checking out books from the Post-Apocalyptic Public Library becomes a lifelong passion. You develop an encyclopedic knowledge of pre-war literature, cooking, and home repair manuals. Your collection grows so extensive that other survivors come to you for advice on everything from quantum physics to pre-war tax law.\n\nYou become known throughout the wasteland as the \"Walking Library,\" carrying a backpack full of carefully preserved books and sharing knowledge wherever you go. Children gather around you to hear stories from the old world, and scholars seek your counsel on obscure academic topics.\n\nYou've found your purpose in preserving and sharing the wisdom of the past.",
+                ending: "collector"
+            },
+            underground: {
+                title: "UNDERGROUND UTOPIAN 🕳️",
+                content: "Life in the Tunnel Rats' underground utopia is surprisingly comfortable. They've created a self-sustaining community with hydroponic gardens, renewable energy systems, and a democratic government that meets monthly to discuss important issues like the optimal temperature for mushroom cultivation.\n\nYou're elected to the Underground Council, where you help make decisions about resource allocation, territorial disputes with mole rats, and the annual \"Best-Lighted Cave\" competition. The community thrives under your leadership, becoming a model for other underground settlements.\n\nYou live out your days in comfort and security, knowing you've helped create a better world beneath the surface.",
+                ending: "utopian"
+            },
+            happiness: {
+                title: "HAPPINESS AMBASSADOR 😊",
+                content: "Floor 101's happiness programming is unlike anything you've ever experienced. Trained by former Disneyland employees and Cirque du Soleil performers, the happiness technicians use a combination of upbeat music, colorful lights, and therapeutic exercises to boost morale.\n\nYou're selected to become a Happiness Ambassador, traveling to settlements across the wasteland to spread joy and positivity. Your infectious enthusiasm helps communities recover from disasters, overcome depression, and find reasons to celebrate even in difficult times.\n\nYou've discovered that in a world full of challenges, happiness is perhaps the most valuable resource of all.",
+                ending: "happiness"
+            },
+            sadness: {
+                title: "EMPATHY COUNSELOR 😢",
+                content: "Floor 202's sadness remediation program teaches you that acknowledging grief is just as important as pursuing happiness. The counselors here specialize in helping people process loss, trauma, and the challenges of post-apocalyptic life.\n\nYou become a certified Empathy Counselor, helping survivors work through their emotions in healthy ways. Your compassionate approach helps countless people find peace with their new reality and develop resilience for future challenges.\n\nYou've learned that sometimes the greatest gift you can give someone is simply listening with an open heart.",
+                ending: "empathy"
+            },
+            existential: {
+                title: "EXISTENTIAL PHILOSOPHER 🤔",
+                content: "Floor 303's existential crisis counseling program is led by a former university professor who survived the apocalypse by embracing the absurdity of existence. \"If the world can end in nuclear fire, then anything is possible,\" he explains. \"And if anything is possible, then everything has meaning—or no meaning—which is itself meaningful.\"\n\nYou become a student of existential philosophy, learning to find purpose in purposelessness and beauty in chaos. Your insights help other survivors cope with the meaninglessness of their situation while finding reasons to continue living.\n\nYou've discovered that the search for meaning can be more valuable than finding it.",
+                ending: "philosopher"
+            },
+            lint: {
+                title: "LINT ARCHIVIST 🧵",
+                content: "Cataloguing lint specimens with Clanksworth becomes an unexpectedly profound experience. Each piece tells a story—of the person who owned the clothing, their daily activities, their hopes and fears. You develop a system for classifying lint by emotional content, creating the world's first \"Psycho-Lintological Archive.\"\n\nYour research attracts attention from scholars across the wasteland, and you're invited to present your findings at the First Annual Post-Apocalyptic Academic Conference. Your paper \"The Emotional Residue of Daily Life: A Lint-Based Analysis of Human Experience\" revolutionizes the field of psycho-archaeology.\n\nYou've proven that even the smallest, most overlooked aspects of life can reveal profound truths about the human condition.",
+                ending: "archivist"
+            },
+            metaphysics: {
+                title: "JANITORIAL METAPHYSICIAN 🧹",
+                content: "Your discussions with Clanksworth about the metaphysics of cleaning lead to groundbreaking insights about the nature of order and chaos. \"Cleaning,\" Clanksworth observes, \"is the eternal struggle against entropy made manifest. Each sweep of my brush is a small act of defiance against the universe's tendency toward disorder.\"\n\nYou co-author a treatise titled \"The Philosophy of Dust: Cleaning as Existential Practice\" that becomes required reading in post-apocalyptic philosophy courses. Your insights help communities understand that maintaining order in their lives is not just practical but deeply spiritual.\n\nYou've discovered that even the most mundane tasks can be transformed into profound spiritual practices.",
+                ending: "metaphysician"
+            },
+            couture: {
+                title: "FASHION INNOVATOR 👗",
+                content: "The post-apocalyptic haute couture outfit created for you by Coco Mutante and her team is absolutely spectacular. Made from recycled parachute silk, melted bottle caps, and iridescent beetle wings, it's both functional and fashionable—protecting you from radiation while making you look fabulous.\n\nYour new outfit causes a sensation throughout the wasteland. Fashion magazines (yes, they still exist) feature you on their covers, and you're invited to judge beauty contests from Vault to Vault. You become the first Post-Apocalyptic Style Icon, inspiring a new generation of survivors to look good while enduring hardship.\n\nYou've proven that even in the darkest times, fashion can be a source of joy and self-expression.",
+                ending: "fashion"
+            },
+            sculpture: {
+                title: "ARTISTIC VISIONARY 🎨",
+                content: "Collaborating with the coat hanger artists on a sculpture is a transformative experience. Your creation—a towering representation of hope rising from destruction—becomes a landmark visible from miles around. Travelers use it as a navigation aid, and romantic couples visit it for dates.\n\nYour artistic vision inspires a renaissance in post-apocalyptic art. Communities commission you to create sculptures that celebrate their unique identities and histories. Your work helps people remember that even after the world ends, beauty and creativity endure.\n\nYou've discovered that art has the power to heal, inspire, and unite communities in the most challenging circumstances.",
+                ending: "artist"
+            },
+            community: {
+                title: "SETTLEMENT FOUNDING FATHER 👴",
+                content: "Your decision to stay and help build the settlement proves to be one of the most important choices of your life. Working alongside the other residents, you help establish systems for food production, education, defense, and governance.\n\nWithin a year, the settlement has grown from a few dozen survivors to a thriving community of over 200 people. You're elected as the first Mayor of New Copley, a position you hold for many years.\n\nUnder your leadership, the settlement becomes a model for other communities, establishing trade relationships with Vault cities, Ghoul territories, and even some Super Mutant clans. You've helped plant the seeds of a new civilization in the ashes of the old world.\n\nYour legacy is secured when the town square is named \"Mayor's Plaza\" and a statue is erected in your honor.",
+                ending: "founder"
+            },
+            diplomat: {
+                title: "MASTER DIPLOMAT 🤝",
+                content: "Your success in negotiating the inter-species trade agreement leads to even greater diplomatic responsibilities. You're appointed as the first Ambassador-at-Large for the Post-Apocalyptic Coalition, an organization dedicated to promoting cooperation between all surviving communities.\n\nIn this role, you travel extensively, establishing trade routes, cultural exchanges, and mutual defense pacts between human settlements, Vault cities, Ghoul territories, and various mutant communities. Your work helps transform what could have been a fragmented, hostile wasteland into a network of interconnected, mutually supportive communities.\n\nYou're credited with preventing several wars and helping to establish the foundations of a new, more inclusive civilization. Statues are erected in your honor in three different species' capitals.",
+                ending: "masterDiplomat"
+            }
+        };
+
+        // Function to display story content
+        function displayStory(state) {
+            const story = storyData[state];
+            const storyContent = document.getElementById('storyContent');
+            const choicesContainer = document.getElementById('choicesContainer');
+            
+            // Clear previous content
+            choicesContainer.innerHTML = '';
+            
+            // Display story content
+            if (story.ending) {
+                storyContent.innerHTML = `
+                    <div class="story-title">${story.title}</div>
+                    <div class="ascii-art">${story.ascii || ''}</div>
+                    <div class="ending-indicator">[ SURVIVAL CONFIRMED - ${getEndingType(story.ending)} CLASSIFICATION ]</div>
+                    <p>${story.content.replace(/\n/g, '</p><p>')}</p>
+                `;
+                
+                // Add restart button
+                const restartBtn = document.createElement('button');
+                restartBtn.className = 'choice-btn nav-btn';
+                restartBtn.textContent = 'BEGIN ANOTHER SURVIVAL SIMULATION ♻️';
+                restartBtn.onclick = resetGame;
+                choicesContainer.appendChild(restartBtn);
+                
+                // Add home button
+                const homeBtn = document.createElement('button');
+                homeBtn.className = 'choice-btn nav-btn home-btn';
+                homeBtn.textContent = '🏠 RETURN TO HOME SCREEN';
+                homeBtn.onclick = goToHome;
+                choicesContainer.appendChild(homeBtn);
+            } else {
+                storyContent.innerHTML = `
+                    <div class="story-title">${story.title}</div>
+                    <div class="ascii-art">${story.ascii || ''}</div>
+                    <p>${story.content.replace(/\n/g, '</p><p>')}</p>
+                `;
+                
+                // Display choices
+                story.choices.forEach(choice => {
+                    const button = document.createElement('button');
+                    button.className = 'choice-btn';
+                    button.textContent = choice.text;
+                    button.onclick = () => {
+                        // Add current state to history before navigating
+                        navigationHistory.push(currentState);
+                        currentState = choice.next;
+                        displayStory(choice.next);
+                    };
+                    choicesContainer.appendChild(button);
+                });
+                
+                // Add navigation buttons
+                const navContainer = document.createElement('div');
+                navContainer.style.display = 'flex';
+                navContainer.style.justifyContent = 'center';
+                navContainer.style.gap = '10px';
+                navContainer.style.marginTop = '10px';
+                
+                // Back button (only if there's history)
+                if (navigationHistory.length > 0) {
+                    const backBtn = document.createElement('button');
+                    backBtn.className = 'choice-btn nav-btn back-btn';
+                    backBtn.textContent = '◀️ GO BACK';
+                    backBtn.onclick = goBack;
+                    navContainer.appendChild(backBtn);
+                }
+                
+                // Home button
+                const homeBtn = document.createElement('button');
+                homeBtn.className = 'choice-btn nav-btn home-btn';
+                homeBtn.textContent = '🏠 RETURN TO HOME SCREEN';
+                homeBtn.onclick = goToHome;
+                navContainer.appendChild(homeBtn);
+                
+                choicesContainer.appendChild(navContainer);
+            }
+        }
+
+        // Go back function
+        function goBack() {
+            if (navigationHistory.length > 0) {
+                const previousState = navigationHistory.pop();
+                currentState = previousState;
+                displayStory(previousState);
+            }
+        }
+
+        // Reset game function
+        function resetGame() {
+            // Reset stats
+            characterStats = {
+                luck: 7,
+                charm: 5,
+                wit: 8,
+                survival: 6
+            };
+            
+            // Reset inventory
+            inventory = [
+                "🧄 Garlic Necklace",
+                "🔦 Flashlight",
+                "📋 Clipboard",
+                null
+            ];
+            
+            // Reset navigation history
+            navigationHistory = [];
+            currentState = 'intro';
+            
+            // Update display
+            updateStats();
+            displayStory('intro');
+        }
+
+        // Go to home screen function
+        function goToHome() {
+            // Reset navigation history
+            navigationHistory = [];
+            currentState = 'intro';
+            displayStory('intro');
+        }
+
+        // Helper function to get ending type description
+        function getEndingType(type) {
+            const endings = {
+                academic: "Academic Excellence",
+                salvage: "Salvage Specialist",
+                librarian: "Knowledge Keeper",
+                collector: "Book Collector",
+                utopian: "Underground Pioneer",
+                happiness: "Joy Bringer",
+                empathy: "Comfort Giver",
+                philosopher: "Deep Thinker",
+                archivist: "Preservation Expert",
+                metaphysician: "Spiritual Cleaner",
+                fashion: "Style Icon",
+                artist: "Creative Visionary",
+                community: "Settlement Founder",
+                philosophical: "Reality Awakener",
+                constitution: "Chief Justice",
+                diplomat: "Master Diplomat",
+                founder: "Community Builder",
+                justice: "Legal Pioneer",
+                masterDiplomat: "Inter-Species Ambassador",
+                chronicler: "Historical Chronicler",
+                historian: "Ghoul Historian",
+                wanderer: "Wasteland Wanderer",
+                scientist: "Radiation Scientist",
+                healer: "Radiation Healer",
+                advisor: "Pageant Advisor",
+                performer: "Stage Performer",
+                resistanceLeader: "Rebel Leader",
+                resistanceLiaison: "Resistance Coordinator",
+                communicationsExpert: "Signal Specialist",
+                escapee: "Freedom Seeker",
+                informant: "Vault Informant",
+                fieldScientist: "Field Researcher",
+                techBroker: "Technology Mediator",
+                whistleblower: "Truth Revealer",
+                ethicsAdvisor: "Medical Ethics Consultant"
+            };
+            return endings[type] || "Survivor";
+        }
+
+        // Initialize effects and story
+        document.addEventListener('DOMContentLoaded', function() {
+            createSnow();
+            updateStats();
+            displayStory('intro');
+            
+            // Set up audio button
+            document.getElementById('audioToggle').addEventListener('click', toggleAudio);
+        });
+    </script>
+</body>
+</html>
