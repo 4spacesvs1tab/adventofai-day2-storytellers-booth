@@ -1,0 +1,99 @@
+{
+  "personalities": {
+    "mysterious": {
+      "name": "Mysterious Morgan",
+      "emoji": "🔮",
+      "description": "Speaks in riddles about the old world and new mysteries",
+      "fortunes": [
+        {
+          "text": "In the ruins where the old gods dwelt,\nNew spirits in the shadows belt.\nThe Geiger counters' clicking song\nForetells where you belong.\n\nSeek not gold but knowledge pure,\nIn the libraries that endure.",
+          "magic_level": 85
+        },
+        {
+          "text": "The ravens speak of futures bright,\nThough wrapped in nuclear winter's night.\nWhen the wasteland blooms anew,\nYour path will lead both me and you.\n\nListen close to silence deep,\nWhere ancient secrets safely sleep.",
+          "magic_level": 78
+        },
+        {
+          "text": "Beyond the veil of radiation's glow,\nThe old world's truths begin to show.\nNot in the vaults where cowards hide,\nBut in the open, starlit sky wide.\n\nEmbrace the change, don't fear the new,\nThe world's rebirth begins with you.",
+          "magic_level": 82
+        }
+      ]
+    },
+    "festive": {
+      "name": "Festive Felicia",
+      "emoji": "🎉",
+      "description": "Celebrates the absurd joy of surviving the apocalypse",
+      "fortunes": [
+        {
+          "text": "What a glorious day to be alive!\nRadiation levels are thriving!\nThe sun shines bright through toxic haze,\nAs we celebrate our post-apocalypse days!\n\nGrab your gas mask, dust off your hat,\nLet's party like there's no tomorrow - oh wait, there wasn't!",
+          "magic_level": 90
+        },
+        {
+          "text": "Rad-roses bloom in vibrant hues,\nMutant creatures playfully cruise.\nThe world's a playground, bright and new,\nSo let's make merry, me and you!\n\nDance beneath the fallout sky,\nWho needs the old world? Goodbye!",
+          "magic_level": 88
+        },
+        {
+          "text": "Ghouls are gathering for a feast,\nMutant Hounds and Roaches increased!\nThe post-apocalyptic party's here,\nWith laughter, joy, and nuclear cheer!\n\nCome one, come all, don't be shy,\nWe're all just trying to get by!",
+          "magic_level": 92
+        }
+      ]
+    },
+    "grumpy": {
+      "name": "Grumpy Gus",
+      "emoji": "😠",
+      "description": "Cranky survivor who's seen too much",
+      "fortunes": [
+        {
+          "text": "Bah! Humbug! That's what I say,\nAbout this radioactive clay.\nYour future's bleak, as dark as night,\nSo save your coins, don't waste your sight.\n\nThe world's gone mad, and so are you,\nIf you think anything's gonna be new.",
+          "magic_level": 30
+        },
+        {
+          "text": "Another year, another blast,\nMore troubles than you care to last.\nBundle up and brace for worse,\nWinter's cruel, it could be rehearse.\n\nThe cockroaches win, we all lose,\nWelcome to the nuclear news.",
+          "magic_level": 25
+        },
+        {
+          "text": "Don't expect much, that's my advice,\nLife's not fair, and that's not nice.\nSave your hopes, they'll only break,\nAccept your fate, it's all you'll make.\n\nThe old world's dead, get over it,\nStop dreaming of what used to fit.",
+          "magic_level": 20
+        }
+      ]
+    },
+    "poetic": {
+      "name": "Poetic Penelope",
+      "emoji": "📜",
+      "description": "Philosophical observer of the new world",
+      "fortunes": [
+        {
+          "text": "Like whispers soft through toxic rain,\nYour destiny flows through joy and pain.\nEach petal falls where it's meant to be,\nIn life's grand tapestry, wild and free.\n\nThe old world died to birth the new,\nSometimes destruction leads to breakthrough.",
+          "magic_level": 75
+        },
+        {
+          "text": "Upon the canvas of decay,\nPaint boldly through each nuclear day.\nThe colors blend in perfect time,\nYour masterpiece approaches in its rhyme.\n\nWhat was lost can be reborn,\nFrom ashes rises golden corn.",
+          "magic_level": 72
+        },
+        {
+          "text": "As rivers carve through ancient stone,\nYour journey shapes you, unknown.\nEach twist and turn, each rise and fall,\nContributes to your destined call.\n\nThe world transforms, so shall we,\nIn beauty born from tragedy.",
+          "magic_level": 77
+        }
+      ]
+    },
+    "sarcastic": {
+      "name": "Sarcastic Sam",
+      "emoji": "😏",
+      "description": "Witty cynic making light of the apocalypse",
+      "fortunes": [
+        {
+          "text": "Oh wow, a fortune! How original.\nYour future holds... surprise, surprise!\nJust kidding, but seriously,\nYou'll probably be fine. Maybe.\n\nAt least the air quality's improved,\nNow it's just mildly poisoned.",
+          "magic_level": 40
+        },
+        {
+          "text": "Congratulations! You've won...\nNothing! But look on the bright side,\nAt least you're not stuck in traffic\nSomewhere less exciting than this.\n\nRadiation suits are the new black,\nWho needs fashion weeks? What a hack!",
+          "magic_level": 35
+        },
+        {
+          "text": "The stars align in your favor,\nWhich is astronomically rare.\nBut then again, so is good luck,\nSo don't hold your breath, just be aware.\n\nThe cockroaches said they'd inherit the earth,\nThey were right! Go team exoskeleton!",
+          "magic_level": 42
+        }
+      ]
+    }
+  }
+}
