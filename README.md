@@ -88,3 +88,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 *Step into the shadows and seek your fate...*
+
+## Screenshots
+
+![Screenshot 1](4s1t_d1_fortunetellerstent_01.png)
+![Screenshot 2](4s1t_d1_fortunetellerstent_02.png)
+![Screenshot 3](4s1t_d1_fortunetellerstent_03.png)
+![Screenshot 4](4s1t_d1_fortunetellerstent_04.png)
